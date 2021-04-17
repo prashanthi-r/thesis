@@ -23,6 +23,7 @@ class protocols:
 		if(conf.partyNum == 0):
 			alpha_1 = prim.randsample_2(conf.advIP_1,conf.advPORT_1)
 			alpha_2 = prim.randsample_2(conf.advIP_2,conf.advPORT_2)
+			alpha = alpha_1 + alpha_2
 
 		if(conf.partyNum == 1):
 			alpha = prim.randsample_2(conf.advIP_1,conf.advPORT_1)
@@ -80,4 +81,34 @@ class protocols:
 
 
 		################# ONLINE #########################
-		
+
+		# Step 1
+
+		if(conf.partyNum == 1 or conf.partyNum == 2):
+			my_beta_z = (conf.partyNum - 1)*(a.x2)*(b.x2) - (a.x2)*(b.x1) - (b.x2)*(a.x1) + gamma_xy + alpha
+			adv_beta_z = prim.sendval(my_beta_z,advIP_2,advPORT_2)
+
+			beta_z = my_beta_z + adv_beta_z
+
+		# Step 2
+		if(conf.partyNum == 0):
+			gamma_xy = (a.x1+a.x2)*(b.x1+b.x2)
+			beta_zstar = -1*(a.x3)*(b.x1+b.x2) - (b.x3)*(a.x1+a.x2) + alpha + 2*(gamma_xy) + chi
+
+			prim.send_all(prim.Hash(beta_zstar)) #this doesn't work now
+
+
+		# Step 3
+		if(conf.partyNum == 1 or conf.partyNum == 2):
+			# some issues with send_val to be fixed
+			beta_zstar = prim.recv_val()
+			assert(beta_zstar == prim.Hash(beta_z - (a.x2)(b.x2) + psi))
+
+			if(conf.partyNum == 1):
+				# send(beta_z + gamma) to P_0
+				# P2 send(prim.Hash(beta_z + gamma)) to P_0
+
+		if(conf.partyNum == 0):
+			# receive() from P_1
+			# receive() from P_2
+			# assert that they're are consistent

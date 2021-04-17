@@ -7,6 +7,7 @@ import random
 import numpy as np
 import math
 import os
+import hashlib
 
 class primitives:
 
@@ -62,7 +63,7 @@ class primitives:
 
 		return recv_info
 
-	def send_val_2(send_info): # send a value to the other two servers and receive one value each from both of them
+	def send_all(send_info): # send a value to the other two servers and receive one value each from both of them
 		
 		recv_info_1 = send_val(send_val,conf.advIP_1,conf.advPORT_1)
 		recv_info_2 = send_val(send_val,conf.advIP_2,conf.advPORT_2)
@@ -77,3 +78,9 @@ class primitives:
 		r = my_r + adv_r
 
 		return r
+
+	def Hash(x):
+		m = hashlib.sha256()
+		m = m.update(bytes(str(x)))
+		m = m.digest()
+		return m
