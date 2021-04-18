@@ -1,6 +1,5 @@
 import socket
-import numpy as np
-from dataclasses import dataclass
+# import numpy as np
 # from primitives import primitives as prim
 
 class config:
@@ -14,11 +13,13 @@ class config:
 	PORT = -1
 	advPORT_1 = -1
 	advPORT_2 = -1
+
+	PRIMARY = -1
 	
 	l = 64
 	lby2 = 32
 	modl = 2**l
-	# max_dec = prim.int2float(2**(l-1)-1) # maximum positive decimal value possible to express in the integer ring
+	max_dec = 0 # maximum positive decimal value possible to express in the integer ring
 
 	precision = 13
 	converttoint64 = (1<<precision)
