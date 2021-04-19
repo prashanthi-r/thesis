@@ -32,26 +32,29 @@ class primitives:
 			conf.ssock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			conf.ssock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 			conf.ssock.bind((conf.IP, conf.PORT))
+			conf.ssock.setblocking(True)
 			conf.ssock.listen()
 
 			if(conf.partyNum == 1):
 				conf.csock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				conf.csock1.setblocking(True)
 				while True:
 					try:
 						conf.csock1.connect((conf.advIP_2,conf.advPORT_2))
-						print("Connected")
 						break
 					except: 
 						continue
+
+				print("Connected")
 
 				while True:
 					try:
 						print('Waiting for connection at : ',conf.IP,conf.PORT)
 						conf.client1, addr = conf.ssock.accept()
-						print('Received connection ')
 						break
 					except:
 						continue
+				print('Received connection ')
 			else:
 				n_conn = 0
 				while True:
@@ -73,15 +76,19 @@ class primitives:
 					except:
 						continue
 		else:
-			csock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			csock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			conf.csock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			conf.csock1.setblocking(True)
+			conf.csock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			conf.csock2.setblocking(True)
 			while True:
 				try:
 					conf.csock1.connect((conf.advIP_1,conf.advPORT_1))
+					print("hi")
 					break
 				except: 
 					continue
 			print("Connected")
+			print(conf.csock1)
 			while True:
 				try:
 					conf.csock2.connect((conf.advIP_2,conf.advPORT_2))
@@ -109,34 +116,34 @@ class primitives:
 		if(conf.partyNum == 1):
 			if(send_partyNum == 0):
 				conf.client1.send(pickle.dumps(send_info))
-				recv_info = conf.client1.recv(4096)
+				recv_info = conf.client1.recv(1024)
 				recv_info = pickle.loads(recv_info)
 
 			if(send_partyNum == 2):
 				conf.csock1.send(pickle.dumps(send_info))
-				recv_info = conf.csock1.recv(4096)
+				recv_info = conf.csock1.recv(1024)
 				recv_info = pickle.loads(recv_info)
 
 
 		elif(conf.partyNum == 2):
 			if(send_partyNum == 0):
 				conf.client2.send(pickle.dumps(send_info))
-				recv_info = conf.client2.recv(4096)
+				recv_info = conf.client2.recv(1024)
 				recv_info = pickle.loads(recv_info)
 
 			if(send_partyNum == 1):
-				recv_info = conf.client1.recv(4096)
+				recv_info = conf.client1.recv(1024)
 				recv_info = pickle.loads(recv_info)
 				conf.client1.send(pickle.dumps(send_info))
 
 		else:
 			if(send_partyNum == 1):
-				recv_info = conf.csock1.recv(4096)
+				recv_info = conf.csock1.recv(1024)
 				recv_info = pickle.loads(recv_info)
 				conf.csock1.send(pickle.dumps(send_info))
 
 			if(send_partyNum == 2):
-				recv_info = conf.csock2.recv(4096)
+				recv_info = conf.csock2.recv(1024)
 				recv_info = pickle.loads(recv_info)
 				conf.csock2.send(pickle.dumps(send_info))
 
@@ -164,33 +171,33 @@ class primitives:
 			if(send_partyNum == 2):
 				conf.csock2.send(pickle.dumps(send_info))
 
-	def recv_val(send_info,recv_partyNum):
+	def recv_val(recv_partyNum):
 		if(conf.partyNum == 1):
 			if(recv_partyNum == 0):
-				recv_info = conf.client1.recv(4096)
+				recv_info = conf.client1.recv(1024)
 				recv_info = pickle.loads(recv_info)
 
 			if(recv_partyNum == 2):
-				recv_info = conf.csock1.recv(4096)
+				recv_info = conf.csock1.recv(1024)
 				recv_info = pickle.loads(recv_info)
 
 
 		elif(conf.partyNum == 2):
 			if(recv_partyNum == 0):
-				recv_info = conf.client2.recv(4096)
+				recv_info = conf.client2.recv(1024)
 				recv_info = pickle.loads(recv_info)
 
 			if(recv_partyNum == 1):
-				recv_info = conf.client1.recv(4096)
+				recv_info = conf.client1.recv(1024)
 				recv_info = pickle.loads(recv_info)
 
 		else:
 			if(recv_partyNum == 1):
-				recv_info = conf.csock1.recv(4096)
+				recv_info = conf.csock1.recv(1024)
 				recv_info = pickle.loads(recv_info)
 
 			if(recv_partyNum == 2):
-				recv_info = conf.csock2.recv(4096)
+				recv_info = conf.csock2.recv(1024)
 				recv_info = pickle.loads(recv_info)
 
 		return recv_info
@@ -207,7 +214,9 @@ class primitives:
 		return r
 
 	def Hash(x):
-		m = hashlib.sha256()
-		m = m.update(bytes(str(x)))
-		m = m.digest()
+
+		m = hashlib.sha256(bytes(str(x).encode('utf-8'))).digest()
+		# m = m.update(bytes(str(x).encode('utf-8')))
+		# print("m: ",m)
+		# m = m.digest()
 		return m

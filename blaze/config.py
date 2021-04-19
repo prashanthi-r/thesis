@@ -6,7 +6,8 @@ class config:
 
 	partyNum = -1
 
-	IP = socket.gethostbyname(socket.gethostname())
+	# IP = socket.gethostbyname(socket.gethostname())
+	IP = '127.0.0.1'
 	advIP_1 = IP
 	advIP_2 = IP 
 	

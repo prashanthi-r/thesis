@@ -47,20 +47,30 @@ def main():
 	b = spc()
 
 	if(conf.PRIMARY):
-		a.x1 = 1
-		a.x2 = 8192 + 2
-		a.x3 = 2
+		a.x1 = np.uint64(1)
+		a.x2 = np.uint64(8192 + 2)
+		a.x3 = np.uint64(2)
+
+		b.x1 = np.uint64(1)
+		b.x2 = np.uint64(8192 + 2)
+		b.x3 = np.uint64(2)
 
 	else:
-		a.x1 = 1
-		a.x2 = 1
-		a.x3 = (8192 + 2) + 2
+		a.x1 = np.uint64(1)
+		a.x2 = np.uint64(1)
+		a.x3 = np.uint64((8192 + 2) + 2)
+
+		b.x1 = np.uint64(1)
+		b.x2 = np.uint64(1)
+		b.x3 = np.uint64((8192 + 2) + 2)
 
 	c = protocols.multiplication(a,b)
 
-	print("Share 0:",c.x1)
-	print("Share 1:",c.x2)
-	print("Share 2:",c.x3)
+	print(str(conf.partyNum)+" Share 0:",c.x1)
+	print(str(conf.partyNum)+" Share 1:",c.x2)
+	print(str(conf.partyNum)+" Share 2:",c.x3)
+
+
 
 	prim.disconnect()
 
