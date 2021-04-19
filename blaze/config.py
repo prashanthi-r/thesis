@@ -15,6 +15,13 @@ class config:
 	advPORT_2 = -1
 
 	PRIMARY = -1
+	adv_party = -1
+
+	ssock = -1
+	csock1 = -1
+	csock2 = -1
+	client1 = -1
+	client2 = -1
 	
 	l = 64
 	lby2 = 32

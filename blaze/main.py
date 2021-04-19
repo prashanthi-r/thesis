@@ -1,12 +1,14 @@
 import sys
 from primitives import primitives as prim
 from protocols import protocols
-from shares import angular_shares as ang
-from shares import special_shares as spc
+from shares import angular_share as ang
+from shares import special_share as spc
 from config import config as conf
 import numpy as np
 
 def main():
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CONFIGURE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	conf.partyNum = int(sys.argv[1])
 	print("*******SERVER ", conf.partyNum, end="*******\n")
 	if conf.partyNum == 0:
@@ -31,6 +33,16 @@ def main():
 		print("Need a valid server number as a command line argument!")
 		exit()
 
+	if(conf.PRIMARY):
+		if(conf.partyNum == 1):
+			conf.adv_party = 2 
+		else:
+			conf.adv_party = 1
+
+	prim.connect()
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
 	a = spc()
 	b = spc()
 
@@ -49,6 +61,8 @@ def main():
 	print("Share 0:",c.x1)
 	print("Share 1:",c.x2)
 	print("Share 2:",c.x3)
+
+	prim.disconnect()
 
 if __name__ == '__main__':
 	main()

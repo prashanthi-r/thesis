@@ -27,89 +27,180 @@ class primitives:
 			
 		return float(y)/(scale)
 
+	def connect(): # connect all the servers with one another
+		if(conf.PRIMARY):
+			conf.ssock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			conf.ssock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+			conf.ssock.bind((conf.IP, conf.PORT))
+			conf.ssock.listen()
 
-	def send_recv_val(send_info,send_IP,send_PORT,sorc): # send a value to another server and receive a value from the same server
-		if(sorc=='s'):
-			ssock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			ssock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-			ssock.bind((conf.IP, conf.PORT))
-			ssock.listen()
+			if(conf.partyNum == 1):
+				conf.csock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				while True:
+					try:
+						conf.csock1.connect((conf.advIP_2,conf.advPORT_2))
+						print("Connected")
+						break
+					except: 
+						continue
+
+				while True:
+					try:
+						print('Waiting for connection at : ',conf.IP,conf.PORT)
+						conf.client1, addr = conf.ssock.accept()
+						print('Received connection ')
+						break
+					except:
+						continue
+			else:
+				n_conn = 0
+				while True:
+					try:
+
+						print('Waiting for connection at : ',conf.IP,conf.PORT)
+						
+						if(n_conn == 0):
+							print("here")
+							conf.client1, addr = conf.ssock.accept()
+						else:
+							conf.client2, addr = conf.ssock.accept()
+						print('Received connection from',addr)
+
+						n_conn = n_conn + 1
+
+						if(n_conn == 2):
+							break
+					except:
+						continue
+		else:
+			csock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			csock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			while True:
 				try:
-					print('Waiting for connection at : ',conf.IP,conf.PORT)
-					client, addr = ssock.accept()
-					print('Received connection ')
-					break
-				except:
-					continue
-
-			recv_info = client.recv(4096)
-			recv_info = pickle.loads(recv_info)
-			client.send(pickle.dumps(send_info))
-			client.close()
-			ssock.close()
-		else: 
-			csock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			while True:
-				try:
-					csock.connect((send_IP,send_PORT))
-					# print("Connected")
+					conf.csock1.connect((conf.advIP_1,conf.advPORT_1))
 					break
 				except: 
 					continue
-			csock.send(pickle.dumps(send_info))
-			recv_info = pickle.loads(csock.recv(4096))
-			csock.close()
+			print("Connected")
+			while True:
+				try:
+					conf.csock2.connect((conf.advIP_2,conf.advPORT_2))
+					break
+				except: 
+					continue
+			print("Connected")
+
+	def disconnect():
+		if(conf.partyNum == 1):
+			conf.ssock.close()
+			conf.csock1.close()
+			conf.client1.close()
+
+		elif(conf.partyNum == 2):
+			conf.ssock.close()
+			conf.client1.close()
+			conf.client2.close()
+
+		else:
+			conf.csock1.close()
+			conf.csock2.close()
+
+	def send_recv_val(send_info,send_partyNum):
+		if(conf.partyNum == 1):
+			if(send_partyNum == 0):
+				conf.client1.send(pickle.dumps(send_info))
+				recv_info = conf.client1.recv(4096)
+				recv_info = pickle.loads(recv_info)
+
+			if(send_partyNum == 2):
+				conf.csock1.send(pickle.dumps(send_info))
+				recv_info = conf.csock1.recv(4096)
+				recv_info = pickle.loads(recv_info)
+
+
+		elif(conf.partyNum == 2):
+			if(send_partyNum == 0):
+				conf.client2.send(pickle.dumps(send_info))
+				recv_info = conf.client2.recv(4096)
+				recv_info = pickle.loads(recv_info)
+
+			if(send_partyNum == 1):
+				recv_info = conf.client1.recv(4096)
+				recv_info = pickle.loads(recv_info)
+				conf.client1.send(pickle.dumps(send_info))
+
+		else:
+			if(send_partyNum == 1):
+				recv_info = conf.csock1.recv(4096)
+				recv_info = pickle.loads(recv_info)
+				conf.csock1.send(pickle.dumps(send_info))
+
+			if(send_partyNum == 2):
+				recv_info = conf.csock2.recv(4096)
+				recv_info = pickle.loads(recv_info)
+				conf.csock2.send(pickle.dumps(send_info))
 
 		return recv_info
 
-	def send_val(send_info,send_IP,send_PORT):
-		ssock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		ssock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		ssock.bind((conf.IP, conf.PORT))
-		ssock.listen()
-		while True:
-			try:
-				# print('Waiting for connection at : ',conf.IP,conf.PORT)
-				client, addr = ssock.accept()
-				# print('Received connection ')
-				break
-			except:
-				continue
+	def send_val(send_info,send_partyNum):
+		if(conf.partyNum == 1):
+			if(send_partyNum == 0):
+				conf.client1.send(pickle.dumps(send_info))
 
-		# recv_info = client.recv(4096)
-		# recv_info = pickle.loads(recv_info)
-		client.send(pickle.dumps(send_info))
-		client.close()
-		ssock.close()
-		return 1
-	
-	def recv_val(send_IP,send_PORT):
-		csock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		while True:
-			try:
-				csock.connect((send_IP,send_PORT))
-				# print("Connected")
-				break
-			except: 
-				continue
-		# csock.send(pickle.dumps(send_info))
-		recv_info = pickle.loads(csock.recv(4096))
-		csock.close()
+			if(send_partyNum == 2):
+				conf.csock1.send(pickle.dumps(send_info))
+
+		elif(conf.partyNum == 2):
+			if(send_partyNum == 0):
+				conf.client2.send(pickle.dumps(send_info))
+
+			if(send_partyNum == 1):
+				conf.client1.send(pickle.dumps(send_info))
+
+		else:
+			if(send_partyNum == 1):
+				conf.csock1.send(pickle.dumps(send_info))
+
+			if(send_partyNum == 2):
+				conf.csock2.send(pickle.dumps(send_info))
+
+	def recv_val(send_info,recv_partyNum):
+		if(conf.partyNum == 1):
+			if(recv_partyNum == 0):
+				recv_info = conf.client1.recv(4096)
+				recv_info = pickle.loads(recv_info)
+
+			if(recv_partyNum == 2):
+				recv_info = conf.csock1.recv(4096)
+				recv_info = pickle.loads(recv_info)
+
+
+		elif(conf.partyNum == 2):
+			if(recv_partyNum == 0):
+				recv_info = conf.client2.recv(4096)
+				recv_info = pickle.loads(recv_info)
+
+			if(recv_partyNum == 1):
+				recv_info = conf.client1.recv(4096)
+				recv_info = pickle.loads(recv_info)
+
+		else:
+			if(recv_partyNum == 1):
+				recv_info = conf.csock1.recv(4096)
+				recv_info = pickle.loads(recv_info)
+
+			if(recv_partyNum == 2):
+				recv_info = conf.csock2.recv(4096)
+				recv_info = pickle.loads(recv_info)
+
 		return recv_info
 
-	def send_all(send_info): # send a value to the other two servers
-		
-		recv_info_1 = primitives.send_val(send_val,conf.advIP_1,conf.advPORT_1,'s')
-		recv_info_2 = primitives.send_val(send_val,conf.advIP_2,conf.advPORT_2,'s')
 
-		return [recv_info_1,recv_info_2]
-
-	def randsample_2(send_IP,send_PORT,sorc): # allow any two of the three parties to sample a random value together
+	def randsample_2(send_partyNum): # allow any two of the three parties to sample a random value together
 		conf.max_dec = primitives.int2float(2**(conf.l-1)-1)
 
 		my_r = primitives.float2int(random.uniform(-1*conf.max_dec,conf.max_dec)) # sample a random float value from the possible range and embed it on the ring
-		adv_r = primitives.send_recv_val(my_r,send_IP,send_PORT,sorc)
+		adv_r = primitives.send_recv_val(my_r,send_partyNum)
 
 		r = my_r + adv_r
 
