@@ -83,7 +83,6 @@ class primitives:
 			while True:
 				try:
 					conf.csock1.connect((conf.advIP_1,conf.advPORT_1))
-					print("hi")
 					break
 				except: 
 					continue
@@ -209,7 +208,7 @@ class primitives:
 		my_r = primitives.float2int(random.uniform(-1*conf.max_dec,conf.max_dec)) # sample a random float value from the possible range and embed it on the ring
 		adv_r = primitives.send_recv_val(my_r,send_partyNum)
 
-		r = my_r + adv_r
+		r = np.uint64(np.add(my_r,adv_r))
 
 		return r
 
