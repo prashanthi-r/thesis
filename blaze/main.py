@@ -48,28 +48,64 @@ def main():
 
 	if(conf.PRIMARY):
 		a.x1 = np.uint64(1)
-		a.x2 = np.uint64(8192 + 2)
+		a.x2 = np.uint64(1 + 2)
 		a.x3 = np.uint64(2)
 
 		b.x1 = np.uint64(1)
-		b.x2 = np.uint64(8192 + 2)
+		b.x2 = np.uint64(1 + 2)
 		b.x3 = np.uint64(2)
 
 	else:
 		a.x1 = np.uint64(1)
 		a.x2 = np.uint64(1)
-		a.x3 = np.uint64((8192 + 2) + 2)
+		a.x3 = np.uint64((1 + 2) + 2)
 
 		b.x1 = np.uint64(1)
 		b.x2 = np.uint64(1)
-		b.x3 = np.uint64((8192 + 2) + 2)
+		b.x3 = np.uint64((1 + 2) + 2)
 
 	c = protocols.multiplication(a,b)
 
-	print(str(conf.partyNum)+" Share 0:",c.x1)
-	print(str(conf.partyNum)+" Share 1:",c.x2)
-	print(str(conf.partyNum)+" Share 2:",c.x3)
+	# print(str(conf.partyNum)+" Share 0:",c.x1)
+	# print(str(conf.partyNum)+" Share 1:",c.x2)
+	# print(str(conf.partyNum)+" Share 2:",c.x3)
 
+	a = ang()
+	b = ang()
+
+	# if(conf.PRIMARY):
+	# 	a.x1 = np.uint64(1)
+	# 	a.x2 = np.uint64(8192 + 2)
+	# 	# a.x3 = np.uint64(2)
+
+	# 	b.x1 = np.uint64(1)
+	# 	b.x2 = np.uint64(8192 + 2)
+	# 	# b.x3 = np.uint64(2)
+
+	# else:
+	# 	a.x1 = np.uint64(1)
+	# 	a.x2 = np.uint64(1)
+	# 	# a.x3 = np.uint64((8192 + 2) + 2)
+
+	# 	b.x1 = np.uint64(1)
+	# 	b.x2 = np.uint64(1)
+	# 	# b.x3 = np.uint64((8192 + 2) + 2)
+
+	# c = protocols.mulZK(a,b)
+	# print(str(conf.partyNum)+" Share 0:",c.x1)
+	# print(str(conf.partyNum)+" Share 1:",c.x2)
+
+	# if(conf.partyNum == 0):
+	# 	alp = np.add(c.x1,c.x2)
+	# 	print("\n\nalpha: ",alp,end="\n")
+	# 	prim.send_val(alp,1)
+	# 	prim.send_val(alp,2)
+
+	# else:
+	# 	alp = prim.recv_val(0)
+	# 	v = np.subtract(c.x2,alp)
+
+	# 	print("secret share: ",v)
 
 
 	prim.disconnect()

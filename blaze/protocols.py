@@ -62,7 +62,7 @@ class protocols:
 
 		# Step 3
 		if(conf.PRIMARY):
-			f_lf = np.uint64(np.add(np.subtract(np.subtract(np.multiply(np.uint64(conf.partyNum - 1),np.multiply((d.x2),(e.x2))),np.multiply((d.x1),(e.x2))),np.multiply((e.x1),(d.x2))),np.add(lambda_de,lambda_)))
+			f_lf = np.uint64(np.add(np.subtract(np.subtract(np.multiply(conf.partyNum - 1,np.multiply(d.x2,e.x2)),np.multiply(d.x1,e.x2)),np.multiply(e.x1,d.x2)),np.add(lambda_de,lambda_)))
 
 			other_f_lf = prim.send_recv_val(f_lf,conf.adv_party)
 
@@ -105,7 +105,7 @@ class protocols:
 			alpha = prim.randsample_2(0)
 			print("Sampled alpha_2")
 			gamma = prim.randsample_2(1)
-			print("Sampled gamma")
+			print("Sampled gamma: ", gamma)
 
 		
 		# Step 2
@@ -147,24 +147,29 @@ class protocols:
 			Psi = [psi,psi_1,psi_2] # to access all the psi's
 
 		# Step 6
-			gamma_xy = np.uint64(np.add(np.add(np.multiply(a.x3,b.x1),np.multiply(b.x3,a.x1)),np.subtract(Psi[conf.partyNum],chi)))
-
+			gamma_xy = (np.add(np.add(np.multiply(a.x3,b.x1),np.multiply(b.x3,a.x1)),np.subtract(Psi[conf.partyNum],chi)))
+			print(str(conf.partyNum)+" gamma_xy",gamma_xy)
 
 		##################### ONLINE #########################
 
 		# Step 1
 
 		if(conf.PRIMARY):
-			my_beta_z = np.uint64(np.add(np.subtract(np.subtract(np.multiply(np.uint64(conf.partyNum - 1),np.multiply((a.x2),(b.x2))),np.multiply((a.x2),(b.x1))),np.multiply((b.x2),(a.x1))),np.add(gamma_xy,alpha)))
+			my_beta_z = np.uint64(np.add(np.subtract(np.subtract(np.multiply(conf.partyNum - 1,np.multiply((a.x2),(b.x2))),np.multiply((a.x2),(b.x1))),np.multiply((b.x2),(a.x1))),np.add(gamma_xy,alpha)))
 
 			adv_beta_z = prim.send_recv_val(my_beta_z,conf.adv_party)
 			beta_z = np.uint64(np.add(my_beta_z,adv_beta_z))
+			print(str(conf.partyNum)+" beta_z",beta_z)
+			print("psi: ",Psi[0])
+			print("Bxby: ",np.multiply((a.x2),(b.x2)))
 
 		# Step 2
 		if(conf.partyNum == 0):
 			gamma_xy = np.multiply(np.add(a.x1,a.x2),np.add(b.x1,b.x2)) # gamma_xy = alpha_x X alpha_y
-			beta_zstar = np.add(np.subtract(np.multiply(np.uint64(-1),np.multiply((a.x3),np.add(b.x1,b.x2))),np.multiply(b.x3,np.add(a.x1,a.x2))),np.add(np.add(alpha,gamma_xy),chi))
+			print("0 gamma_xy",gamma_xy)
+			beta_zstar = np.uint64(np.add(np.subtract(np.multiply(-1,np.multiply((a.x3),np.add(b.x1,b.x2))),np.multiply(b.x3,np.add(a.x1,a.x2))),np.add(np.add(alpha,np.multiply(2,gamma_xy)),chi)))
 			print('0: beta_zstar: ',beta_zstar)
+			print('0: Hash(beta_zstar): ',prim.Hash(beta_zstar))
 			prim.send_val(prim.Hash(beta_zstar),1)
 			prim.send_val(prim.Hash(beta_zstar),2)
 
@@ -175,7 +180,8 @@ class protocols:
 			beta_zstar = prim.recv_val(0)
 			print('beta_zstar: ',beta_zstar)
 			print("Hash: ",prim.Hash(np.uint64(np.subtract(beta_z,np.add(np.multiply((a.x2),(b.x2)),psi)))))
-			assert beta_zstar == prim.Hash(np.uint64(np.subtract(beta_z,np.add(np.multiply((a.x2),(b.x2)),psi))))
+			print('beta_zstar computed: ',np.uint64(np.subtract(beta_z,np.add(np.multiply((a.x2),(b.x2)),psi))))
+			assert beta_zstar - prim.Hash(np.uint64(np.subtract(beta_z,np.add(np.multiply((a.x2),(b.x2)),psi))))
 
 			if(conf.partyNum == 1):
 				# send(beta_z + gamma) to P_0
