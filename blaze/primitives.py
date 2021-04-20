@@ -45,29 +45,29 @@ class primitives:
 					except: 
 						continue
 
-				print("Connected")
+				# print("Connected")
 
 				while True:
 					try:
-						print('Waiting for connection at : ',conf.IP,conf.PORT)
+						# print('Waiting for connection at : ',conf.IP,conf.PORT)
 						conf.client1, addr = conf.ssock.accept()
 						break
 					except:
 						continue
-				print('Received connection ')
+				# print('Received connection ')
 			else:
 				n_conn = 0
 				while True:
 					try:
 
-						print('Waiting for connection at : ',conf.IP,conf.PORT)
+						# print('Waiting for connection at : ',conf.IP,conf.PORT)
 						
 						if(n_conn == 0):
-							print("here")
+							# print("here")
 							conf.client1, addr = conf.ssock.accept()
 						else:
 							conf.client2, addr = conf.ssock.accept()
-						print('Received connection from',addr)
+						# print('Received connection from',addr)
 
 						n_conn = n_conn + 1
 
@@ -86,15 +86,15 @@ class primitives:
 					break
 				except: 
 					continue
-			print("Connected")
-			print(conf.csock1)
+			# print("Connected")
+			# print(conf.csock1)
 			while True:
 				try:
 					conf.csock2.connect((conf.advIP_2,conf.advPORT_2))
 					break
 				except: 
 					continue
-			print("Connected")
+			# print("Connected")
 
 	def disconnect():
 		if(conf.partyNum == 1):

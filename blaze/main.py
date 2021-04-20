@@ -9,6 +9,7 @@ import numpy as np
 def main():
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CONFIGURE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	
 	conf.partyNum = int(sys.argv[1])
 	print("*******SERVER ", conf.partyNum, end="*******\n")
 	if conf.partyNum == 0:
@@ -41,7 +42,7 @@ def main():
 
 	prim.connect()
 
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TEST BLAZE MULT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 	a = spc()
 	b = spc()
@@ -66,12 +67,14 @@ def main():
 
 	c = protocols.multiplication(a,b)
 
-	# print(str(conf.partyNum)+" Share 0:",c.x1)
-	# print(str(conf.partyNum)+" Share 1:",c.x2)
-	# print(str(conf.partyNum)+" Share 2:",c.x3)
+	print(str(conf.partyNum)+" Share 0:",c.x1)
+	print(str(conf.partyNum)+" Share 1:",c.x2)
+	print(str(conf.partyNum)+" Share 2:",c.x3)
 
-	a = ang()
-	b = ang()
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TEST MULZK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	# a = ang()
+	# b = ang()
 
 	# if(conf.PRIMARY):
 	# 	a.x1 = np.uint64(1)
@@ -107,7 +110,8 @@ def main():
 
 	# 	print("secret share: ",v)
 
-
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	
 	prim.disconnect()
 
 if __name__ == '__main__':
