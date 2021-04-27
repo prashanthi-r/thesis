@@ -23,6 +23,9 @@ class config:
 	csock2 = -1
 	client1 = -1
 	client2 = -1
+
+	num_bytes_sent = 0
+	num_bytes_received = 0
 	
 	l = 64
 	lby2 = 32
@@ -38,4 +41,4 @@ class config:
 	blaze = 0
 	thesis = 1
 
-	MODE = blaze # you can run the codebase in two modes - blaze and thesis.
+	MODE = thesis # you can run the codebase in two modes - blaze and thesis.

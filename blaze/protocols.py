@@ -35,11 +35,13 @@ class protocols:
 			# print("0: Sampled lambda_2")
 			lambda_ = mpz((lambda_1+lambda_2)%(conf.modl))
 			# print("0: Computing lambda...")
+			# print("lambda: ", lambda_)
 
 			lambda_de_1 = prim.randsample_2(1) # sampling lambda_de with P1
 			# print("0: Sampled lambda_de_1")
 			# Step 2
-			lambda_de = mpz((d.x1*e.x1)%(conf.modl))
+			lambda_de = mpz((d.x1 + d.x2)*(e.x1 + e.x2)%(conf.modl))
+			# print("lambda_de: ", lambda_de)
 			lambda_de_2 = mpz((lambda_de - lambda_de_1)%(conf.modl))
 
 			prim.send_val(lambda_de_2,2)
@@ -63,12 +65,15 @@ class protocols:
 
 		# Step 3
 		if(conf.PRIMARY):
-			f_lf = mpz(((((mpz(conf.partyNum) - mpz(1))*(d.x2*e.x2)) - (d.x1*e.x2)) - (e.x1*d.x2) + (lambda_de + lambda_))%(conf.modl))
-
+			# print("lambda_de_"+str(conf.partyNum)+": ", lambda_de)
+			# print(" lamda_"+str(conf.partyNum)+": ",lambda_)
+			f_lf = mpz(((mpz(conf.partyNum) - mpz(1))*(d.x2*e.x2) - (d.x1*e.x2) - (e.x1*d.x2) + (lambda_de + lambda_))%(conf.modl))
+			
+			# print(str(conf.partyNum)+" partynum - 1: ", (mpz(conf.partyNum) - mpz(1)))
 			other_f_lf = prim.send_recv_val(f_lf,conf.adv_party)
 
 			f_lf = mpz((f_lf + other_f_lf)%(conf.modl))
-
+			# print("f_lf: ",f_lf)
 			# setting the share
 
 			f.x1 = lambda_
@@ -95,7 +100,7 @@ class protocols:
 			alpha_2 = prim.randsample_2(2)
 			# print("Sampled alpha_2")
 			# print("Computing alpha...")
-			alpha = mpz(((np.add(alpha_1,alpha_2)))%(conf.modl))
+			alpha = (alpha_1+alpha_2)%(conf.modl)
 
 		if(conf.partyNum == 1):
 			alpha = prim.randsample_2(0)
@@ -133,23 +138,23 @@ class protocols:
 		if(conf.partyNum == 0):
 			chi_1 = f.x1
 			chi_2 = f.x2
-			chi = mpz((np.add(chi_1,chi_2))%(conf.modl))
+			chi = (chi_1+chi_2)%(conf.modl)
 
 		if(conf.PRIMARY):
 			chi = f.x1
 
-			psi = mpz((np.subtract(f.x2,np.multiply((a.x3),(b.x3))))%(conf.modl)) # is truncation needed here?
+			psi = f.x2 - ((a.x3)*(b.x3))%(conf.modl) # is truncation needed here?
 
 		# Step 5
 		if(conf.PRIMARY):
 			r = prim.randsample_2(conf.adv_party) # P1,P2 sample random r
 			psi_1 = r
-			psi_2 = mpz((np.subtract(psi,r))%(conf.modl))
+			psi_2 = (psi - r)%(conf.modl)
 
 			Psi = [psi,psi_1,psi_2] # to access all the psi's
 
 		# Step 6
-			gamma_xy = mpz((np.add(np.add(np.multiply(a.x3,b.x1),np.multiply(b.x3,a.x1)),np.subtract(Psi[conf.partyNum],chi)))%(conf.modl))
+			gamma_xy = ((a.x3)*(b.x1) + (b.x3)*(a.x1) + (Psi[conf.partyNum]-chi))%(conf.modl)
 			# print(str(conf.partyNum)+" gamma_xy",gamma_xy)
 
 		##################### ONLINE #########################
@@ -158,47 +163,93 @@ class protocols:
 		# Step 1
 
 		if(conf.PRIMARY):
-			my_beta_z = mpz((np.add(np.subtract(np.subtract(np.multiply(conf.partyNum - 1,np.multiply((a.x2),(b.x2))),np.multiply((a.x2),(b.x1))),np.multiply((b.x2),(a.x1))),np.add(gamma_xy,alpha)))%(conf.modl))
+			my_beta_z = ((conf.partyNum - 1)* (a.x2)*(b.x2) - (a.x2)*(b.x1) - (b.x2)*(a.x1) + (gamma_xy + alpha))%(conf.modl)
 
 			adv_beta_z = prim.send_recv_val(my_beta_z,conf.adv_party)
-			beta_z = mpz((np.add(my_beta_z,adv_beta_z))%(conf.modl))
+			beta_z = (my_beta_z + adv_beta_z)%(conf.modl)
+			beta_z = beta_z
 			# print(str(conf.partyNum)+" beta_z",beta_z)
 			# print("psi: ",Psi[0])
-			# print("Bxby: ",np.multiply((a.x2),(b.x2)))
+			# print("Bx.By: ",np.multiply((a.x2),(b.x2)))
 
-		# Step 2
-		if(conf.partyNum == 0):
-			gamma_xy = np.multiply(np.add(a.x1,a.x2),np.add(b.x1,b.x2)) # gamma_xy = alpha_x X alpha_y
-			# print("0 gamma_xy",gamma_xy)
-			beta_zstar = mpz((np.add(np.subtract(np.multiply(-1,np.multiply((a.x3),np.add(b.x1,b.x2))),np.multiply(b.x3,np.add(a.x1,a.x2))),np.add(np.add(alpha,np.multiply(2,gamma_xy)),chi)))%(conf.modl))
-			print('Party 0: beta_zstar: ',beta_zstar)
-			print('Party 0: Hash(beta_zstar): ',prim.Hash(beta_zstar))
-			prim.send_val(prim.Hash(beta_zstar),1)
-			prim.send_val(prim.Hash(beta_zstar),2)
+		if(conf.MODE!=1):
+			# Step 2
+			if(conf.partyNum == 0):
+				gamma_xy = (a.x1 + a.x2)*(b.x1 + b.x2) # gamma_xy = alpha_x X alpha_y
+				
+				print("0 gamma_xy",gamma_xy)
+				beta_zstar = ((-1 * (a.x3)*(b.x1 + b.x2)) - (b.x3)*(a.x1 + a.x2) + alpha + 2*gamma_xy + chi)%(conf.modl)
+				print('Party 0: beta_zstar: ',(beta_zstar))
+				print('Party 0: Hash(beta_zstar): ',prim.Hash(beta_zstar))
+				prim.send_val(prim.Hash(beta_zstar),1)
+				prim.send_val(prim.Hash(beta_zstar),2)
 
 
-		# Step 3
-		if(conf.PRIMARY):
+			# Step 3
+			if(conf.PRIMARY):
+				
+				beta_zstar = prim.recv_val(0)
+				# print('beta_zstar: ',beta_zstar)
+				print("Party "+str(conf.partyNum)+": Hash= ",prim.Hash((beta_z - ((a.x2)*(b.x2)) + psi) % (conf.modl))) 
+				print("Party "+str(conf.partyNum)+' beta_zstar computed: ',(beta_z - ((a.x2)*(b.x2)) + psi) % (conf.modl))
+				assert beta_zstar == prim.Hash((beta_z - ((a.x2)*(b.x2)) + psi) % (conf.modl))
+				if(conf.partyNum == 1):
+					# send(beta_z + gamma) to P_0
+					prim.send_val((beta_z + gamma)%(conf.modl),0)
+				else:
+					# P2 send(prim.Hash(beta_z + gamma)) to P_0
+					prim.send_val(prim.Hash((beta_z + gamma)%(conf.modl)),0)
+
+			if(conf.partyNum == 0):
+				# receive() from P_1
+				bg = prim.recv_val(1)
+				# receive() from P_2
+				h_bg = prim.recv_val(2)
+				# assert that they're are consistent
+				assert prim.Hash(bg) == h_bg
+
+		else:
+			# Step 2
+			if(conf.partyNum == 0):
+
+				bg = prim.recv_val(1)
+
+				gamma_xy = np.multiply(np.add(a.x1,a.x2),np.add(b.x1,b.x2)) # gamma_xy = alpha_x X alpha_y
+				# print("0 gamma_xy",gamma_xy)
+				beta_zstar = np.uint64((np.add(np.subtract(np.multiply(-1,np.multiply((a.x3),np.add(b.x1,b.x2))),np.multiply(b.x3,np.add(a.x1,a.x2))),np.add(np.add(alpha,np.multiply(2,gamma_xy)),chi)))%(conf.modl))
+				print('Party 0: beta_zstar: ',np.uint64(beta_zstar))
+				print('Party 0: Hash(beta_zstar): ',prim.Hash(beta_zstar))
+				print('Party 0: Hash(beta_zstar)^Hash(bg): ',prim.byte_xor(prim.Hash(beta_zstar),prim.Hash(bg)))
+				prim.send_val(prim.byte_xor(prim.Hash(beta_zstar),prim.Hash(bg)),1)
+				prim.send_val(prim.byte_xor(prim.Hash(beta_zstar),prim.Hash(bg)),2)
 			
-			beta_zstar = prim.recv_val(0)
-			# print('beta_zstar: ',beta_zstar)
-			print("Party "+str(conf.partyNum)+": Hash= ",prim.Hash(mpz((np.subtract(beta_z,np.add(np.multiply((a.x2),(b.x2)),psi)))%(conf.modl))))  
-			print("Party "+str(conf.partyNum)+' beta_zstar computed: ',(mpz(np.add(np.subtract(beta_z,np.multiply((a.x2),(b.x2))),psi)%(conf.modl))))
-			assert beta_zstar == prim.Hash(mpz(np.add(np.subtract(beta_z,np.multiply((a.x2),(b.x2))),psi)%(conf.modl)))
-			if(conf.partyNum == 1):
-				# send(beta_z + gamma) to P_0
-				prim.send_val(mpz((np.add(beta_z,gamma))%(conf.modl)),0)
-			else:
-				# P2 send(prim.Hash(beta_z + gamma)) to P_0
-				prim.send_val(prim.Hash(mpz((np.add(beta_z,gamma))%(conf.modl))),0)
+			# Step 3
+			if(conf.PRIMARY):
 
-		if(conf.partyNum == 0):
-			# receive() from P_1
-			bg = prim.recv_val(1)
-			# receive() from P_2
-			h_bg = prim.recv_val(2)
-			# assert that they're are consistent
-			assert prim.Hash(bg) == h_bg
+				bg = np.uint64((np.add(beta_z,gamma))%(conf.modl))
+				if(conf.partyNum == 1):
+					# send(beta_z + gamma) to P_0
+					prim.send_val((bg)%(conf.modl),0)
+				h_bzs = np.uint64((np.uint64(np.add(np.subtract(beta_z,np.multiply((a.x2),(b.x2))),psi)%(conf.modl))))
+
+				print(h_bzs)
+				print(prim.Hash(bg))
+				beta_zstar = prim.recv_val(0)
+				# print('beta_zstar: ',beta_zstar)
+				print("Party "+str(conf.partyNum)+": Hash= ",prim.Hash(np.uint64((np.subtract(beta_z,np.add(np.multiply((a.x2),(b.x2)),psi)))%(conf.modl))))  
+				print("Party "+str(conf.partyNum)+' beta_zstar computed: ',np.uint64((np.uint64(np.add(np.subtract(beta_z,np.multiply((a.x2),(b.x2))),psi)%(conf.modl)))))
+				print("Party "+str(conf.partyNum)+": Hash(beta_zstar)^Hash(bg)= ",prim.byte_xor(prim.Hash(h_bzs),bytes(prim.Hash(bg))))
+				assert beta_zstar == prim.byte_xor(prim.Hash(h_bzs),bytes(prim.Hash(bg)))
+
+					
+
+			# if(conf.partyNum == 0):
+			# 	# receive() from P_1
+			# 	bg = prim.recv_val(1)
+			# 	# receive() from P_2
+			# 	h_bg = prim.recv_val(2)
+			# 	# assert that they're are consistent
+			# 	assert prim.Hash(bg) == h_bg
 
 		if(conf.PRIMARY):
 			c.x1 = alpha

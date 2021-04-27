@@ -113,6 +113,7 @@ class primitives:
 			conf.csock2.close()
 
 	def send_recv_val(send_info,send_partyNum):
+		conf.num_bytes_sent += sys.getsizeof(send_info)
 		if(conf.partyNum == 1):
 			if(send_partyNum == 0):
 				conf.client1.send(pickle.dumps(send_info))
@@ -147,9 +148,12 @@ class primitives:
 				recv_info = pickle.loads(recv_info)
 				conf.csock2.send(pickle.dumps(send_info))
 
+		conf.num_bytes_received += sys.getsizeof(recv_info)
+
 		return recv_info
 
 	def send_val(send_info,send_partyNum):
+		conf.num_bytes_sent += sys.getsizeof(send_info)
 		if(conf.partyNum == 1):
 			if(send_partyNum == 0):
 				conf.client1.send(pickle.dumps(send_info))
@@ -200,7 +204,11 @@ class primitives:
 				recv_info = conf.csock2.recv(1024)
 				recv_info = pickle.loads(recv_info)
 
+		conf.num_bytes_received += sys.getsizeof(recv_info)
 		return recv_info
+
+	def byte_xor(ba1, ba2):
+		return bytes([_a ^ _b for _a, _b in zip(ba1, ba2)])
 
 
 	def randsample_2(send_partyNum): # allow any two of the three parties to sample a random value together
