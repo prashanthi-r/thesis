@@ -5,6 +5,7 @@ import socket
 import pickle 
 import random
 import numpy as np
+from gmpy2 import mpz
 import math
 import os
 import hashlib
@@ -208,7 +209,7 @@ class primitives:
 		my_r = primitives.float2int(random.uniform(-1*conf.max_dec,conf.max_dec)) # sample a random float value from the possible range and embed it on the ring
 		adv_r = primitives.send_recv_val(my_r,send_partyNum)
 
-		r = np.uint64(np.add(my_r,adv_r))
+		r = (mpz(my_r)+mpz(adv_r))%(conf.modl)
 
 		return r
 

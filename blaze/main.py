@@ -5,6 +5,7 @@ from shares import angular_share as ang
 from shares import special_share as spc
 from config import config as conf
 import numpy as np
+from gmpy2 import mpz
 
 def main():
 
@@ -21,7 +22,7 @@ def main():
 	elif conf.partyNum == 1: 
 		conf.PORT = 8005
 		conf.advPORT_1 = 8004
-		conf.advPORT_2 = 8006
+		conf.advPORT_2 = 8006  
 		conf.PRIMARY = 1
 
 	elif conf.partyNum == 2:
@@ -44,71 +45,71 @@ def main():
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TEST BLAZE MULT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-	a = spc()
-	b = spc()
+	# a = spc()
+	# b = spc()
 
-	if(conf.PRIMARY):
-		a.x1 = np.uint64(1)
-		a.x2 = np.uint64(1 + 2)
-		a.x3 = np.uint64(2)
+	# if(conf.PRIMARY):
+	# 	a.x1 = mpz(1)
+	# 	a.x2 = mpz(1 + 2)
+	# 	a.x3 = mpz(2)
 
-		b.x1 = np.uint64(1)
-		b.x2 = np.uint64(1 + 2)
-		b.x3 = np.uint64(2)
+	# 	b.x1 = mpz(1)
+	# 	b.x2 = mpz(1 + 2)
+	# 	b.x3 = mpz(2)
 
-	else:
-		a.x1 = np.uint64(1)
-		a.x2 = np.uint64(1)
-		a.x3 = np.uint64((1 + 2) + 2)
+	# else:
+	# 	a.x1 = mpz(1)
+	# 	a.x2 = mpz(1)
+	# 	a.x3 = mpz((1 + 2) + 2)
 
-		b.x1 = np.uint64(1)
-		b.x2 = np.uint64(1)
-		b.x3 = np.uint64((1 + 2) + 2)
+	# 	b.x1 = mpz(1)
+	# 	b.x2 = mpz(1)
+	# 	b.x3 = mpz((1 + 2) + 2)
 
-	c = protocols.multiplication(a,b)
+	# c = protocols.multiplication(a,b)
 
-	print(str(conf.partyNum)+" Share 0:",c.x1)
-	print(str(conf.partyNum)+" Share 1:",c.x2)
-	print(str(conf.partyNum)+" Share 2:",c.x3)
+	# print(str(conf.partyNum)+" Share 0:",c.x1)
+	# print(str(conf.partyNum)+" Share 1:",c.x2)
+	# print(str(conf.partyNum)+" Share 2:",c.x3)
 
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TEST MULZK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-	# a = ang()
-	# b = ang()
+	a = ang()
+	b = ang()
 
-	# if(conf.PRIMARY):
-	# 	a.x1 = np.uint64(1)
-	# 	a.x2 = np.uint64(8192 + 2)
-	# 	# a.x3 = np.uint64(2)
+	if(conf.PRIMARY):
+		a.x1 = mpz(0)
+		a.x2 = mpz(8192) + mpz(0) + mpz(0)
+		# a.x3 = mpz(2)
 
-	# 	b.x1 = np.uint64(1)
-	# 	b.x2 = np.uint64(8192 + 2)
-	# 	# b.x3 = np.uint64(2)
+		b.x1 = mpz(0)
+		b.x2 = mpz(8192) + mpz(0) + mpz(0)
+		# b.x3 = mpz(2)
 
-	# else:
-	# 	a.x1 = np.uint64(1)
-	# 	a.x2 = np.uint64(1)
-	# 	# a.x3 = np.uint64((8192 + 2) + 2)
+	else:
+		a.x1 = mpz(0)
+		a.x2 = mpz(0)
+		# a.x3 = mpz((8192 + 2) + 2)
 
-	# 	b.x1 = np.uint64(1)
-	# 	b.x2 = np.uint64(1)
-	# 	# b.x3 = np.uint64((8192 + 2) + 2)
+		b.x1 = mpz(0)
+		b.x2 = mpz(0)
+		# b.x3 = mpz((8192 + 2) + 2)
 
-	# c = protocols.mulZK(a,b)
-	# print(str(conf.partyNum)+" Share 0:",c.x1)
-	# print(str(conf.partyNum)+" Share 1:",c.x2)
+	c = protocols.mulZK(a,b)
+	print(str(conf.partyNum)+" Share 0:",c.x1)
+	print(str(conf.partyNum)+" Share 1:",c.x2)
 
-	# if(conf.partyNum == 0):
-	# 	alp = np.add(c.x1,c.x2)
-	# 	print("\n\nalpha: ",alp,end="\n")
-	# 	prim.send_val(alp,1)
-	# 	prim.send_val(alp,2)
+	if(conf.partyNum == 0):
+		alp = (c.x1 + c.x2) % (conf.modl)
+		print("\n\nalpha: ",alp,end="\n")
+		prim.send_val(alp,1)
+		prim.send_val(alp,2)
 
-	# else:
-	# 	alp = prim.recv_val(0)
-	# 	v = np.subtract(c.x2,alp)
+	else:
+		alp = prim.recv_val(0)
+		v = (c.x2 - alp) % (conf.modl)
 
-	# 	print("secret share: ",v)
+		print("secret share: ",v)
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	
