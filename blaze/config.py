@@ -41,4 +41,4 @@ class config:
 	blaze = 0
 	thesis = 1
 
-	MODE = thesis # you can run the codebase in two modes - blaze and thesis.
+	MODE = blaze # you can run the codebase in two modes - blaze and thesis.
