@@ -50,32 +50,32 @@ def main():
 
 	if(conf.PRIMARY):
 		a.x1 = mpz(1)
-		a.x2 = mpz(819 + 2)
+		a.x2 = mpz(8191 + 2)
 		a.x3 = mpz(2)
 
 		b.x1 = mpz(1)
-		b.x2 = mpz(819 + 2)
+		b.x2 = mpz(8191 + 2)
 		b.x3 = mpz(2)
 
 	else:
 		a.x1 = mpz(1)
 		a.x2 = mpz(1)
-		a.x3 = mpz((819 + 2) + 2)
+		a.x3 = mpz((8191 + 2) + 2)
 
 		b.x1 = mpz(1)
 		b.x2 = mpz(1)
-		b.x3 = mpz((819 + 2) + 2)
+		b.x3 = mpz((8191 + 2) + 2)
 
 	c = protocols.multiplication(a,b)
 
-	print(str(conf.partyNum)+" Share 0:",c.x1)
-	print(str(conf.partyNum)+" Share 1:",c.x2)
-	print(str(conf.partyNum)+" Share 2:",c.x3)
+	# print(str(conf.partyNum)+" Share 0:",c.x1)
+	# print(str(conf.partyNum)+" Share 1:",c.x2)
+	# print(str(conf.partyNum)+" Share 2:",c.x3)
 
 
 	if(conf.partyNum == 0):
 		alp = (c.x1 + c.x2) % (conf.modl)
-		print("\n\nalpha: ",alp,end="\n")
+		# print("\n\nalpha: ",alp,end="\n")
 		prim.send_val(alp,1)
 		prim.send_val(alp,2)
 
@@ -83,7 +83,7 @@ def main():
 		alp = prim.recv_val(0)
 		v = (c.x2 - alp) % (conf.modl)
 
-		print("secret share: ",v)
+		print("Product: ",v)
 
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TEST MULZK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -92,21 +92,21 @@ def main():
 
 	# if(conf.PRIMARY):
 	# 	a.x1 = mpz(2)
-	# 	a.x2 = mpz(8192) + mpz(2) + mpz(2)
+	# 	a.x2 = mpz(8191) + mpz(2) + mpz(2)
 	# 	# a.x3 = mpz(2)
 
 	# 	b.x1 = mpz(2)
-	# 	b.x2 = mpz(8192) + mpz(2) + mpz(2)
+	# 	b.x2 = mpz(8191) + mpz(2) + mpz(2)
 	# 	# b.x3 = mpz(2)
 
 	# else:
 	# 	a.x1 = mpz(2)
 	# 	a.x2 = mpz(2)
-	# 	# a.x3 = mpz((8192 + 2) + 2)
+	# 	# a.x3 = mpz((8191 + 2) + 2)
 
 	# 	b.x1 = mpz(2)
 	# 	b.x2 = mpz(2)
-	# 	# b.x3 = mpz((8192 + 2) + 2)
+	# 	# b.x3 = mpz((8191 + 2) + 2)
 
 	# c = protocols.mulZK(a,b)
 	# print(str(conf.partyNum)+" Share 0:",c.x1)
@@ -125,8 +125,10 @@ def main():
 	# 	print("secret share: ",v)
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	
 	print("Server "+ str(conf.partyNum)+": Total number of bytes sent: "+str(conf.num_bytes_sent)+" bytes.")
 	print("Server "+ str(conf.partyNum)+": Total number of bytes received: "+str(conf.num_bytes_received)+" bytes.")
+	
 	prim.disconnect()
 
 

@@ -15,6 +15,41 @@ import time
 
 class protocols:
 
+	# def Pi_share(pNum, v):
+
+	# # The protocol Pi_share enables server P_i to generate [[.]] sharing 
+	# # of a value v in Z_{2^l}
+	
+	# if(conf.partyNum == 0):
+	# 	# Preprocessing phase
+
+	# 	alpha_1 = prim.randsample_2(1)
+
+	# 	alpha_2 = prim.randsample_2(2)
+
+	# 	alpha = mpz((alpha_1+alpha_2)%(conf.modl))
+
+	# 	# Online phase
+
+	# 	beta_v = (v + alpha)%(conf.modl)
+		
+	# 	prim.send_val(beta_v,1)
+	# 	prim.send_val(beta_v,2)
+
+
+	# elif (conf.partyNum == 1):
+	# 	alpha = prim.randsample_2(0)
+	# 	# print("Sampled alpha_1")
+	# 	gamma = prim.randsample_2(2)
+	# 	# print("Sampled gamma")
+
+	# else:
+	# 	alpha = prim.randsample_2(0)
+	# 	# print("Sampled alpha_2")
+	# 	gamma = prim.randsample_2(1)
+		# print("Sampled gamma: ", gamma)
+
+
 	def mulZK(d,e): 
 
 	# mulZK is from: D. Boneh, E. Boyle, H. Corrigan-Gibbs, N. Gilboa, and Y. Ishai,
@@ -69,7 +104,7 @@ class protocols:
 			# print(" lamda_"+str(conf.partyNum)+": ",lambda_)
 			f_lf = mpz(((mpz(conf.partyNum) - mpz(1))*(d.x2*e.x2) - (d.x1*e.x2) - (e.x1*d.x2) + (lambda_de + lambda_))%(conf.modl))
 			
-			# print(str(conf.partyNum)+" partynum - 1: ", (mpz(conf.partyNum) - mpz(1)))
+			# print(str(conf.partyNum)+" partyNum - 1: ", (mpz(conf.partyNum) - mpz(1)))
 			other_f_lf = prim.send_recv_val(f_lf,conf.adv_party)
 
 			f_lf = mpz((f_lf + other_f_lf)%(conf.modl))
@@ -177,7 +212,7 @@ class protocols:
 			if(conf.partyNum == 0):
 				gamma_xy = (a.x1 + a.x2)*(b.x1 + b.x2) # gamma_xy = alpha_x X alpha_y
 				
-				print("0 gamma_xy",gamma_xy)
+				# print("0 gamma_xy",gamma_xy)
 				beta_zstar = ((-1 * (a.x3)*(b.x1 + b.x2)) - (b.x3)*(a.x1 + a.x2) + alpha + 2*gamma_xy + chi)%(conf.modl)
 				print('Party 0: beta_zstar: ',(beta_zstar))
 				print('Party 0: Hash(beta_zstar): ',prim.Hash(beta_zstar))
@@ -214,10 +249,10 @@ class protocols:
 
 				bg = prim.recv_val(1)
 
-				gamma_xy = np.multiply(np.add(a.x1,a.x2),np.add(b.x1,b.x2)) # gamma_xy = alpha_x X alpha_y
+				gamma_xy = (a.x1 + a.x2) * (b.x1 + b.x2) # gamma_xy = alpha_x X alpha_y
 				# print("0 gamma_xy",gamma_xy)
-				beta_zstar = np.uint64((np.add(np.subtract(np.multiply(-1,np.multiply((a.x3),np.add(b.x1,b.x2))),np.multiply(b.x3,np.add(a.x1,a.x2))),np.add(np.add(alpha,np.multiply(2,gamma_xy)),chi)))%(conf.modl))
-				print('Party 0: beta_zstar: ',np.uint64(beta_zstar))
+				beta_zstar = (-1 * a.x3 * (b.x1 + b.x2) - b.x3 * (a.x1 + a.x2) + alpha + (2*gamma_xy) + chi)%(conf.modl)
+				print('Party 0: beta_zstar: ',(beta_zstar))
 				print('Party 0: Hash(beta_zstar): ',prim.Hash(beta_zstar))
 				print('Party 0: Hash(beta_zstar)^Hash(bg): ',prim.byte_xor(prim.Hash(beta_zstar),prim.Hash(bg)))
 				prim.send_val(prim.byte_xor(prim.Hash(beta_zstar),prim.Hash(bg)),1)
@@ -226,31 +261,21 @@ class protocols:
 			# Step 3
 			if(conf.PRIMARY):
 
-				bg = np.uint64((np.add(beta_z,gamma))%(conf.modl))
+				bg = (beta_z + gamma)%(conf.modl)
 				if(conf.partyNum == 1):
 					# send(beta_z + gamma) to P_0
 					prim.send_val((bg)%(conf.modl),0)
-				h_bzs = np.uint64((np.uint64(np.add(np.subtract(beta_z,np.multiply((a.x2),(b.x2))),psi)%(conf.modl))))
+				h_bzs = (beta_z - (a.x2) * (b.x2) + psi)%(conf.modl)
 
 				print(h_bzs)
 				print(prim.Hash(bg))
 				beta_zstar = prim.recv_val(0)
 				# print('beta_zstar: ',beta_zstar)
-				print("Party "+str(conf.partyNum)+": Hash= ",prim.Hash(np.uint64((np.subtract(beta_z,np.add(np.multiply((a.x2),(b.x2)),psi)))%(conf.modl))))  
-				print("Party "+str(conf.partyNum)+' beta_zstar computed: ',np.uint64((np.uint64(np.add(np.subtract(beta_z,np.multiply((a.x2),(b.x2))),psi)%(conf.modl)))))
-				print("Party "+str(conf.partyNum)+": Hash(beta_zstar)^Hash(bg)= ",prim.byte_xor(prim.Hash(h_bzs),bytes(prim.Hash(bg))))
+				# print("Party "+str(conf.partyNum)+": Hash= ",prim.Hash((beta_z - (a.x2) * (b.x2) + psi)%(conf.modl)))  
+				# print("Party "+str(conf.partyNum)+' beta_zstar computed: ',(beta_z - (a.x2) * (b.x2) + psi)%(conf.modl))
+				# print("Party "+str(conf.partyNum)+": Hash(beta_zstar)^Hash(bg)= ",prim.byte_xor(prim.Hash(h_bzs),bytes(prim.Hash(bg))))
 				assert beta_zstar == prim.byte_xor(prim.Hash(h_bzs),bytes(prim.Hash(bg)))
-
 					
-
-			# if(conf.partyNum == 0):
-			# 	# receive() from P_1
-			# 	bg = prim.recv_val(1)
-			# 	# receive() from P_2
-			# 	h_bg = prim.recv_val(2)
-			# 	# assert that they're are consistent
-			# 	assert prim.Hash(bg) == h_bg
-
 		if(conf.PRIMARY):
 			c.x1 = alpha
 			c.x2 = beta_z

@@ -221,6 +221,16 @@ class primitives:
 
 		return r
 
+	# def randsample_3(send_partyNum): # allow all of the three parties to sample a random value together
+	# 	conf.max_dec = primitives.int2float(2**(conf.l-1)-1)
+
+	# 	my_r = primitives.float2int(random.uniform(-1*conf.max_dec,conf.max_dec)) # sample a random float value from the possible range and embed it on the ring
+	# 	adv_r = primitives.send_recv_val(my_r,send_partyNum)
+
+	# 	r = (mpz(my_r)+mpz(adv_r))%(conf.modl)
+
+	# 	return r
+
 	def Hash(x):
 
 		m = hashlib.sha256(bytes(str(x).encode('utf-8'))).digest()
