@@ -1,0 +1,18 @@
+import gendata as g
+u,v,v_dash,z,z_dash = g.generatedata()
+u_1,u_2 = g.split_shares(u,g.n,g.d+1)
+v_1,v_2 = g.split_shares(v,g.d+1,g.t)
+z_1,z_2 = g.split_shares(z,1,g.t)
+x0,x1 =  g.split_shares(3,1,1)
+y0,y1 =  g.split_shares(4,1,1)
+
+print(x0)
+print(x1)
+print(y0)
+print(y1)
+print("u1: ", u_1)
+print("u2: ", u_2)
+print("v1: ", v_1)
+print("v2: ", v_2)
+print("z1: ", z_1)
+print("z2: ", z_2)
